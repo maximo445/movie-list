@@ -1,0 +1,11 @@
+{
+  "name": "my-movie-list",
+  "version": "1.0.0",
+  "description": "an app that helps you pick a movie to watch",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "maximo brito",
+  "license": "ISC"
+}
