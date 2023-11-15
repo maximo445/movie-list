@@ -3,9 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie List App </title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="./js/index.js" defer></script>
+    <script src="https://kit.fontawesome.com/0984bf48ef.js" crossorigin="anonymous" defer></script>
+    <title>Movie List App</title>
 </head>
 <body>
-    
+    <section id="search-section">
+        <div class="container">
+            <button class="toggle-lists">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="search-portion">
+                <form id="search-form">
+                    <input type="text" name="query" id="query">
+                    <button type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>        
+    </section>
 </body>
 </html>

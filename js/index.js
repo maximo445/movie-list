@@ -1,3 +1,53 @@
+class App {
+
+}
+
+// list crwd
+class List {
+    constructor() {
+        this.id = 'produce new id';
+        this.name = '';
+        this.films = [];
+    }
+
+    addFilm(film) {
+
+    }
+
+    removeFilm(film) {
+
+    }
+
+    getFilmsNames() {
+        // returns string html ul of the films with classes added to it
+    }
+}
+
+// films crwd
+class FilmsTracker {
+    constructor() {
+        this.lists = []
+    }
+
+    createList (name) {
+
+    }
+
+    modifyList (action, film) {
+
+    }
+
+    displayListFilms () {
+
+    }
+
+    deleteList (id) {
+
+    }
+
+
+}
+
 class Fetcher {
 
     constructor() {
