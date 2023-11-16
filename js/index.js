@@ -1,5 +1,32 @@
 class App {
+    constructor(){
+        this.ui = new UI();
+        window.addEventListener('hashchange', this._route.bind(this));
+        window.addEventListener('load', this._route.bind(this))
+    }
 
+    _route() {
+        const pathName = window.location.pathname;
+        console.log(pathName);
+        switch (pathName) {
+            case '/index.html':
+                console.log(this);
+                break;
+        
+            default:
+                break;
+        }
+    }
+}
+
+class UI {
+    displayPopularMovies() {
+
+    }
+}
+
+class Delagator {
+    // manages adding to list
 }
 
 // list crwd
@@ -114,14 +141,15 @@ class Fetcher {
 
 (async function() {
 
-    const fetcher = new Fetcher();
+    const app = new App();
 
-    const popularMovies = await fetcher.getPopularMovies();
-    const popularShows = await fetcher.getPopularShows();
-    const searchedMovies = await fetcher.searchMovies('rambo');
-    const searchedShows = await fetcher.searchShows('soccer');
+    // const fetcher = new Fetcher();
+    // const popularMovies = await fetcher.getPopularMovies();
+    // const popularShows = await fetcher.getPopularShows();
+    // const searchedMovies = await fetcher.searchMovies('rambo');
+    // const searchedShows = await fetcher.searchShows('soccer');
 
-    console.log({popularMovies, popularShows, searchedMovies, searchedShows});
+    // console.log({popularMovies, popularShows, searchedMovies, searchedShows});
 
 })();
 

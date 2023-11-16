@@ -12,6 +12,7 @@ body {
     display: flex;
     width: 100%;
     margin: 30px 0;
+    padding: 0 30px;
 }
 
 #search-section .container .toggle-lists {
@@ -52,4 +53,24 @@ outline: none;
     border: none;
     border-left: 1px solid #969696;
     padding: 0 15px;
+}
+
+/* film container */
+.film-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    gap: 20px;
+    padding: 30px;
+}
+
+
+/* card item */
+
+.card-item {
+    color: #fff;
+}
+
+.card-item img {
+    width: 100%;
 }
