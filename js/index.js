@@ -1,6 +1,15 @@
+class IdGerator {
+    _generateUniqueId() {
+        const timestamp = new Date().getTime();
+        const randomNum = Math.floor(Math.random() * 1000); // Adjust the range as needed
+        return `${timestamp}-${randomNum}`;
+    }
+}
+
 class App {
 
     constructor(){
+
         this.ui = new UI();
         
         // check for load and page changes
@@ -31,6 +40,17 @@ class UI {
     constructor() {
         this._fetcher = new Fetcher();
         this._filmTracker = new FilmsTracker();
+        this._listOpened = false;
+        document.querySelector('.toggle-lists .fas').addEventListener('click', this._displayListsPopUp.bind(this));
+    }
+
+    _closePopUp() {
+        document.querySelector('#add-to-list-popup').style.display = 'none';
+    }
+
+    _showCreateList() {
+        
+        document.querySelector('#create-list').style.display = 'block';
     }
 
     _addFilm(e) {
@@ -48,17 +68,58 @@ class UI {
             id = e.target.getAttribute('data-id');
         }
 
-        console.log('from form: ', {name, id});
+        const checkedLists = e.target.querySelectorAll('input[type="checkbox"]:checked');
+
+        checkedLists.forEach(selection => {
+            this._filmTracker.addTolist(name, id, selection.value);
+        })
+
+        this._closePopUp();
 
     }
 
-    _closePopUp() {
-        document.querySelector('#add-to-list-popup').style.display = 'none';
+    createTemplateLists() {
+        const names = ['worship', 'powerful', 'insipirational']
+        names.forEach(name => {
+            this._filmTracker.createList(name);
+        })
     }
 
-    _showCreateList() {
-        
-        document.querySelector('#create-list').style.display = 'block';
+    _createList(e) {
+
+        e.preventDefault();
+
+        // const name = e.target.previousElementSibling.previousElementSibling.getAttribute('data-name');
+        // const id = e.target.previousElementSibling.previousElementSibling.getAttribute('data-id');
+
+        const listName = document.querySelector('#list-name').value;
+
+        this._filmTracker.createList(listName);
+
+        this._closePopUp();
+    }
+
+    _displayListsPopUp () {
+        const numberOfList = this._filmTracker.lists.length;
+        if (numberOfList <= 0) return;
+        if (!this._listOpened) {
+            const div = document.createElement('div');
+            div.classList.add('list-container');
+            div.innerHTML = `
+                <ul>
+                    ${this._filmTracker.lists.map(list => {
+                        return `
+                        <li><a id="list-name-films" href="list.html?id=${list.id}"><span>${list.name}:</span> <span>${list.films.length} Films</span></a></li>
+                        `;
+                    }).join('')}
+                </ul>
+            `;
+            document.querySelector('.toggle-lists').appendChild(div);
+            this._listOpened = true;
+        } else {
+            document.querySelector('.toggle-lists .list-container').remove();
+            this._listOpened = false;
+        }
     }
 
     _displayAddListPopUp(e) {
@@ -93,7 +154,7 @@ class UI {
                 ${this._filmTracker.lists.map(list => {
                     return `
                         <label>
-                            <input type="checkbox" data-it="${list.id}" name="${list.name}" value="${list.name}"> Option 1
+                            <input type="checkbox" data-it="${list.id}" name="id" value="${list.id}"> ${list.name}
                         </label>                    
                     `;
                 }).join('<br>')}
@@ -102,7 +163,7 @@ class UI {
             <form id="create-list">
                 <label for="field1">Name</label>
                 <br>
-                <input type="text" id="field1" name="field1" placeholder="Enter playlist name...">
+                <input type="text" id="list-name" name="list-name" placeholder="Enter playlist name...">
                 <br>
                 <input type="submit" value="Create">
             </form>                                              
@@ -120,6 +181,7 @@ class UI {
         document.querySelector('.close-popup').addEventListener('click', this._closePopUp.bind(this));
         document.querySelector('#display-create-list').addEventListener('click', this._showCreateList.bind(this));
         document.querySelector('#add-to').addEventListener('submit', this._addFilm.bind(this));
+        document.querySelector('#create-list').addEventListener('submit', this._createList.bind(this));
     }
 
     async displayPopularMovies() {
@@ -161,15 +223,18 @@ class Film {
 }
 
 // list crwd
-class List {
+class List extends IdGerator {
     constructor(name) {
-        this.id = 'produce new id';
+        super();
+        this.id = this._generateUniqueId();
         this.name = name;
         this.films = [];
     }
 
     addFilm(film) {
-        this.films.append(film);
+        const exist = this.films.filter(myFilm => myFilm.id === film.id);
+        if (exist.length >= 1) return;
+        this.films.push(film);
     }
 
     removeFilm(film) {
@@ -188,8 +253,18 @@ class FilmsTracker {
     }
 
     createList (name) {
+        const exist = this.lists.filter(list => list.name === name);
+        if (exist.length >= 1) return;
         const newList = new List(name);
-        this.lists.append(newList);
+        this.lists.push(newList);
+    }
+
+    addTolist (name, id, listID) {
+        const newFilm = new Film(name, id);
+        const list = this.lists.filter(list => list.id === listID)[0];
+        list.addFilm(newFilm);
+        console.log({tracker: this});
+        console.log({list});
     }
 
     modifyList (action, film) {
@@ -275,13 +350,9 @@ class Fetcher {
 
     const app = new App();
 
-    // const fetcher = new Fetcher();
-    // const popularMovies = await fetcher.getPopularMovies();
-    // const popularShows = await fetcher.getPopularShows();
-    // const searchedMovies = await fetcher.searchMovies('rambo');
-    // const searchedShows = await fetcher.searchShows('soccer');
+    app.ui.createTemplateLists();
 
-    // console.log({popularMovies, popularShows, searchedMovies, searchedShows});
+    // work on displaying the list on ui side bar
 
 })();
 

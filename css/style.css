@@ -6,6 +6,12 @@ body {
     background: #1a1a1a;
 }
 
+/* utilities */
+
+.on-view {
+    display: block;
+}
+
 /* search section */
 
 #search-section .container {
@@ -128,6 +134,74 @@ outline: none;
 
 #create-list {
     display: none;
+}
+
+/* lists popup */
+
+.toggle-lists {
+    position: relative;
+}
+
+#list-name-films {
+    display: flex;
+    justify-content: space-between;
+}
+
+.list-container {
+    position: absolute;
+    top: 0;
+    left: 20px;
+    z-index: 10;
+    width: 200px; 
+    height: 150px;   
+    background: #292929;
+    padding: 15px;
+    border: #0c0c0c solid 3px;
+    border-radius: 10px;
+    overflow-y: scroll;
+}
+
+.list-container::-webkit-scrollbar {
+    width: 12px; /* width of the scrollbar */
+}
+  
+.list-container::-webkit-scrollbar-thumb {
+    background-color: #404040; /* color of the thumb */
+    border-radius: 6px; /* rounded corners of the thumb */
+}
+  
+.list-container::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* color of the track */
+    border-radius: 10px;
+}
+
+.list-container scrollbar {
+    width: 12px;
+}
+  
+.list-container scrollbar-thumb {
+    background-color: #404040; /* color of the thumb */
+    border-radius: 6px; /* rounded corners of the thumb */
+}
+  
+.list-container scrollbar-track {
+    background-color: #f1f1f1; /* color of the track */
+    border-radius: 10px;
+}
+
+.list-container ul {
+    list-style: none;
+    padding: 0;
+    overflow: auto;
+}
+
+.list-container ul li {
+    padding: 5px 0;
+}
+
+.list-container ul li a {
+    color: #fff;
+    text-decoration: none;
 }
 
 /* responsiviness */
