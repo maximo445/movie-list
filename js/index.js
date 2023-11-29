@@ -74,8 +74,22 @@ class UI {
             this._filmTracker.addTolist(name, id, selection.value);
         })
 
+        if (this._listOpened) {
+            this._render('updateListsPU');
+        }
+
         this._closePopUp();
 
+    }
+
+    _render(action) {
+        switch (action) {
+            case 'updateListsPU':
+                this._displayListsPopUp(false, true);
+                break;        
+            default:
+                break;
+        }
     }
 
     createTemplateLists() {
@@ -89,20 +103,37 @@ class UI {
 
         e.preventDefault();
 
-        // const name = e.target.previousElementSibling.previousElementSibling.getAttribute('data-name');
-        // const id = e.target.previousElementSibling.previousElementSibling.getAttribute('data-id');
+        const name = e.target.previousElementSibling.previousElementSibling.getAttribute('data-name');
+        const id = e.target.previousElementSibling.previousElementSibling.getAttribute('data-id');
 
         const listName = document.querySelector('#list-name').value;
 
-        this._filmTracker.createList(listName);
+        const newList = this._filmTracker.createList(listName);
+
+        this._filmTracker.addTolist(name, id, newList.id);
+
+        if (this._listOpened) {
+            this._render('updateListsPU');
+        }
 
         this._closePopUp();
     }
 
-    _displayListsPopUp () {
+    _displayListsPopUp (event, dontClose = false) {
+
+        console.log({listOpened: this._listOpened, dontClose});
+
         const numberOfList = this._filmTracker.lists.length;
+
         if (numberOfList <= 0) return;
-        if (!this._listOpened) {
+
+        if (!this._listOpened || dontClose) {
+
+            const popUp = document.querySelector('.toggle-lists .list-container');
+            if (popUp) {
+                popUp.remove();
+            }
+
             const div = document.createElement('div');
             div.classList.add('list-container');
             div.innerHTML = `
@@ -115,10 +146,17 @@ class UI {
                 </ul>
             `;
             document.querySelector('.toggle-lists').appendChild(div);
+
             this._listOpened = true;
+
         } else {
+
+            console.log('are we here?');
+
             document.querySelector('.toggle-lists .list-container').remove();
+
             this._listOpened = false;
+
         }
     }
 
@@ -257,6 +295,7 @@ class FilmsTracker {
         if (exist.length >= 1) return;
         const newList = new List(name);
         this.lists.push(newList);
+        return newList;
     }
 
     addTolist (name, id, listID) {
