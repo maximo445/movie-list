@@ -77,6 +77,8 @@ class UI {
             this._render('updateListsPU');
         }
 
+        this._filmTracker.compareData();
+
         this._closePopUp();
 
     }
@@ -114,6 +116,8 @@ class UI {
         if (this._listOpened) {
             this._render('updateListsPU');
         }
+
+        this._filmTracker.compareData();
 
         this._closePopUp();
     }
@@ -261,29 +265,25 @@ class UI {
 
         const list = this._filmTracker.getList(param1Value);
 
-        console.log(this._filmTracker.lists);
+        const listsObject = list.toPlainObject();
 
-        console.log(list);
+        const films = listsObject.films;     
 
-        // results.forEach(movie => {
-        //     const div = document.createElement('div');
-        //     div.classList.add('card-item');
-        //     div.innerHTML = `
-        //         <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="film-poster">
-        //         <h2 class="title">${movie.title}</h2>
-        //         <div class="bottom">
-        //             <p class="rating">rating: ${movie.vote_average}</p>
-        //             <button data-name="${movie.title}" data-id="${movie.id}" class="display-list-form"><i class="fas fa-plus"></i></button>
-        //         </div>
-        //     `;
-        //     document.querySelector('#popular-movies .film-container').appendChild(div);
-        // });
-
-        // const popupButtons =document.querySelectorAll('.display-list-form');
-
-        // popupButtons.forEach(button => {
-        //     button.addEventListener('click', this._displayAddListPopUp.bind(this));
-        // })
+        films.forEach(movie => {
+            const div = document.createElement('div');
+            div.classList.add('swiper-slide');
+            div.innerHTML = `
+            <div class="card-item">
+                <img src="https://image.tmdb.org/t/p/w500/pD6sL4vntUOXHmuvJPPZAgvyfd9.jpg" alt="film-poster">
+                <h2 class="title">${movie.name}</h2>
+                <div class="bottom">
+                    <p class="rating">rating: 10</p>
+                </div>
+            </div>    
+            `;
+            console.log(div);
+            document.querySelector('.swiper-wrapper').appendChild(div);
+        });
 
         const swiper = new Swiper('.swiper', {
             // Optional parameters
@@ -343,14 +343,6 @@ class List extends IdGerator {
         if (exist.length >= 1) return;
         this.films.push(film);
     }
-
-    removeFilm(film) {
-
-    }
-
-    getFilmsNames() {
-        // returns string html ul of the films with classes added to it
-    }
 }
 
 // films crwd
@@ -358,6 +350,12 @@ class FilmsTracker {
     constructor() {
         this.lists = [];
         this._getLocalStorage();
+    }
+
+    compareData() {
+        const trackerList = this.lists;
+        const storageList = JSON.parse(localStorage.getItem('lists'));
+        console.log({trackerList, storageList: storageList.lists});
     }
 
     createList (name) {
@@ -390,8 +388,10 @@ class FilmsTracker {
     _getLocalStorage() {
 
         const jsonString = localStorage.getItem('lists');
-
+    
         if (jsonString) {
+
+            this.lists = [];
 
             const listsObject = JSON.parse(jsonString);
 
@@ -404,9 +404,7 @@ class FilmsTracker {
                 list.films.forEach(film => {
                     const newFilm = new Film(film.name, film.id);
                     newList.addFilm(newFilm);
-                })
-
-                this.lists = [];
+                });
 
                 this.lists.push(newList);
             });
@@ -483,11 +481,7 @@ class Fetcher {
 }
 
 (async function() {
-
     const app = new App();
-
-    app.ui.createTemplateLists();
-
 })();
 
 
