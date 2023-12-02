@@ -204,6 +204,13 @@ outline: none;
     text-decoration: none;
 }
 
+/* Swiper JS */
+
+.swiper {
+    width: 600px;
+    height: 300px;
+}
+
 /* responsiviness */
 
 @media only screen and (max-width: 1100px) {

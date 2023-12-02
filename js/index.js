@@ -27,7 +27,8 @@ class App {
             case '/index.html':
                 this.ui.displayPopularMovies();          
                 break;
-        
+            case '/list.html':
+                this.ui.displayListFilms();
             default:
                 break;
         }
@@ -41,15 +42,13 @@ class UI {
         this._fetcher = new Fetcher();
         this._filmTracker = new FilmsTracker();
         this._listOpened = false;
-        document.querySelector('.toggle-lists .fas').addEventListener('click', this._displayListsPopUp.bind(this));
     }
 
     _closePopUp() {
         document.querySelector('#add-to-list-popup').style.display = 'none';
     }
 
-    _showCreateList() {
-        
+    _showCreateList() {        
         document.querySelector('#create-list').style.display = 'block';
     }
 
@@ -242,11 +241,72 @@ class UI {
             document.querySelector('#popular-movies .film-container').appendChild(div);
         });
 
+        document.querySelector('.toggle-lists .fas').addEventListener('click', this._displayListsPopUp.bind(this));
+
         const popupButtons =document.querySelectorAll('.display-list-form');
 
         popupButtons.forEach(button => {
             button.addEventListener('click', this._displayAddListPopUp.bind(this));
         })
+
+    }
+
+    displayListFilms() {
+
+        const listId = window.location.search;
+
+        const params = new URLSearchParams(listId);
+
+        const param1Value = params.get('id'); 
+
+        const list = this._filmTracker.getList(param1Value);
+
+        console.log(this._filmTracker.lists);
+
+        console.log(list);
+
+        // results.forEach(movie => {
+        //     const div = document.createElement('div');
+        //     div.classList.add('card-item');
+        //     div.innerHTML = `
+        //         <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="film-poster">
+        //         <h2 class="title">${movie.title}</h2>
+        //         <div class="bottom">
+        //             <p class="rating">rating: ${movie.vote_average}</p>
+        //             <button data-name="${movie.title}" data-id="${movie.id}" class="display-list-form"><i class="fas fa-plus"></i></button>
+        //         </div>
+        //     `;
+        //     document.querySelector('#popular-movies .film-container').appendChild(div);
+        // });
+
+        // const popupButtons =document.querySelectorAll('.display-list-form');
+
+        // popupButtons.forEach(button => {
+        //     button.addEventListener('click', this._displayAddListPopUp.bind(this));
+        // })
+
+        const swiper = new Swiper('.swiper', {
+            // Optional parameters
+            direction: 'vertical',
+            loop: true,
+          
+            // If we need pagination
+            pagination: {
+              el: '.swiper-pagination',
+            },
+          
+            // Navigation arrows
+            navigation: {
+              nextEl: '.swiper-button-next',
+              prevEl: '.swiper-button-prev',
+            },
+          
+            // And if we need scrollbar
+            scrollbar: {
+              el: '.swiper-scrollbar',
+            },
+          });
+    
 
     }
 
@@ -258,6 +318,10 @@ class Film {
         this.name = name;
         this.id = id;
     }
+
+    toPlainObject() {
+        return {name: this.name, id: this.id};
+    }
 }
 
 // list crwd
@@ -267,6 +331,11 @@ class List extends IdGerator {
         this.id = this._generateUniqueId();
         this.name = name;
         this.films = [];
+    }
+
+    toPlainObject() {
+        const films = this.films.map(film => film.toPlainObject());
+        return {id: this.id, name: this.name, films};
     }
 
     addFilm(film) {
@@ -287,7 +356,8 @@ class List extends IdGerator {
 // films crwd
 class FilmsTracker {
     constructor() {
-        this.lists = []
+        this.lists = [];
+        this._getLocalStorage();
     }
 
     createList (name) {
@@ -302,22 +372,49 @@ class FilmsTracker {
         const newFilm = new Film(name, id);
         const list = this.lists.filter(list => list.id === listID)[0];
         list.addFilm(newFilm);
-        console.log({tracker: this});
-        console.log({list});
+        this._setLocalStorage();
     }
 
-    modifyList (action, film) {
-
+    getList (listID) {
+        const list = this.lists.filter(list => list.id === listID)[0];
+        return list; 
     }
 
-    displayListFilms () {
-
+    _setLocalStorage() {
+        const lists = this.lists.map(list => list.toPlainObject());
+        const listsObject = {lists: lists};
+        const jsonString = JSON.stringify(listsObject);
+        localStorage.setItem("lists", jsonString);
     }
 
-    deleteList (id) {
+    _getLocalStorage() {
 
+        const jsonString = localStorage.getItem('lists');
+
+        if (jsonString) {
+
+            const listsObject = JSON.parse(jsonString);
+
+            listsObject.lists.forEach(list => {
+                //create new list
+                const newList = new List(list.name);
+                //change the default id 
+                newList.id = list.id;
+
+                list.films.forEach(film => {
+                    const newFilm = new Film(film.name, film.id);
+                    newList.addFilm(newFilm);
+                })
+
+                this.lists = [];
+
+                this.lists.push(newList);
+            });
+            
+        } else {
+            console.log('nothing in yet');
+        }
     }
-
 
 }
 
@@ -390,8 +487,6 @@ class Fetcher {
     const app = new App();
 
     app.ui.createTemplateLists();
-
-    // work on displaying the list on ui side bar
 
 })();
 
