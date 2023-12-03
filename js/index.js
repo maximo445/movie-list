@@ -143,7 +143,7 @@ class UI {
                 <ul>
                     ${this._filmTracker.lists.map(list => {
                         return `
-                        <li><a id="list-name-films" href="list.html?id=${list.id}"><span>${list.name}:</span> <span>${list.films.length} Films</span></a></li>
+                        <li><a id="list-name-films" href="list.html?id=${list.id}"><span>${list.getShortName()}:</span> <span>${list.films.length}</span></a></li>
                         `;
                     }).join('')}
                 </ul>
@@ -265,6 +265,8 @@ class UI {
 
         const list = this._filmTracker.getList(param1Value);
 
+        document.querySelector('#list-header h1').innerHTML = `${list.name}`.toLocaleUpperCase();
+
         const listsObject = list.toPlainObject();
 
         const films = listsObject.films;     
@@ -273,7 +275,7 @@ class UI {
             const div = document.createElement('div');
             div.classList.add('swiper-slide');
             div.innerHTML = `
-            <div class="card-item">
+            <div class="card-item-2">
                 <img src="https://image.tmdb.org/t/p/w500/pD6sL4vntUOXHmuvJPPZAgvyfd9.jpg" alt="film-poster">
                 <h2 class="title">${movie.name}</h2>
                 <div class="bottom">
@@ -281,30 +283,55 @@ class UI {
                 </div>
             </div>    
             `;
-            console.log(div);
             document.querySelector('.swiper-wrapper').appendChild(div);
         });
 
         const swiper = new Swiper('.swiper', {
-            // Optional parameters
-            direction: 'vertical',
-            loop: true,
-          
-            // If we need pagination
-            pagination: {
-              el: '.swiper-pagination',
+
+            slidesPerView: 1,
+            speed: 400,
+            spaceBetween: 15,
+            // autoplay: {
+            //     delay: 4000
+            // },
+            breakpoints: {
+                // when window width is >= 320px
+                500: {
+                  slidesPerView: 2,
+                  spaceBetween: 5
+                },
+                // when window width is >= 480px
+                700: {
+                  slidesPerView: 3,
+                  spaceBetween: 15
+                },
+                // when window width is >= 640px
+                1200: {
+                  slidesPerView: 4,
+                  spaceBetween: 20
+                }
             },
-          
             // Navigation arrows
             navigation: {
-              nextEl: '.swiper-button-next',
-              prevEl: '.swiper-button-prev',
-            },
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+            }
+
+            // // Optional parameters
+            // direction: 'horizontal',
+            // loop: true,
           
-            // And if we need scrollbar
-            scrollbar: {
-              el: '.swiper-scrollbar',
-            },
+            // // If we need pagination
+            // pagination: {
+            //   el: '.swiper-pagination',
+            // },
+          
+      
+          
+            // // And if we need scrollbar
+            // scrollbar: {
+            //   el: '.swiper-scrollbar',
+            // },
           });
     
 
@@ -342,6 +369,10 @@ class List extends IdGerator {
         const exist = this.films.filter(myFilm => myFilm.id === film.id);
         if (exist.length >= 1) return;
         this.films.push(film);
+    }
+
+    getShortName() {
+        return this.name.length > 9? `${this.name.substring(0, 9)}.. `.toUpperCase() : this.name.toUpperCase(); 
     }
 }
 
