@@ -13,8 +13,8 @@ class App {
         this.ui = new UI();
         
         // check for load and page changes
-        window.addEventListener('hashchange', this._route.bind(this));
         window.addEventListener('load', this._route.bind(this));
+        window.addEventListener('hashchange', this._route.bind(this));
 
         //display add form
     }
@@ -25,10 +25,16 @@ class App {
         
         switch (pathName) {
             case '/index.html':
-                this.ui.displayPopularMovies();          
+                this.ui.displayPopularMovies();
+                this.ui.isSelected('movie');          
+                break;
+            case '/shows.html':
+                this.ui.displayPopularShows();
+                this.ui.isSelected('tv');
                 break;
             case '/list.html':
                 this.ui.displayListFilms();
+                break;
             default:
                 break;
         }
@@ -52,26 +58,44 @@ class UI {
         document.querySelector('#create-list').style.display = 'block';
     }
 
+    isSelected(type) {
+
+        const movies = document.querySelector('#selection .movies');
+        const tv = document.querySelector('#selection .tv');
+
+        if (type === 'movie') {
+            movies.classList.add('isSelected');
+            tv.classList.remove('isSelected');
+        } else if (type === 'tv') {
+            tv.classList.add('isSelected');
+            movies.classList.remove('isSelected');
+        }
+
+    }
+
     _addFilm(e) {
 
         e.preventDefault();
 
         let name = '';
         let id ='';
+        let poster = '';
 
         if (e.target.classList.contains('fas')) {
             name = e.target.parentElement.getAttribute('data-name');
             id = e.target.parentElement.getAttribute('data-id');            
+            poster = e.target.parentElement.getAttribute('data-poster');            
         } else {
             name = e.target.getAttribute('data-name');
             id = e.target.getAttribute('data-id');
+            poster = e.target.getAttribute('data-poster');
         }
 
         const checkedLists = e.target.querySelectorAll('input[type="checkbox"]:checked');
 
         checkedLists.forEach(selection => {
-            this._filmTracker.addTolist(name, id, selection.value);
-        })
+            this._filmTracker.addTolist(name, id, poster, selection.value);
+        });
 
         if (this._listOpened) {
             this._render('updateListsPU');
@@ -106,12 +130,13 @@ class UI {
 
         const name = e.target.previousElementSibling.previousElementSibling.getAttribute('data-name');
         const id = e.target.previousElementSibling.previousElementSibling.getAttribute('data-id');
+        const poster = e.target.previousElementSibling.previousElementSibling.getAttribute('data-poster'); 
 
         const listName = document.querySelector('#list-name').value;
 
         const newList = this._filmTracker.createList(listName);
 
-        this._filmTracker.addTolist(name, id, newList.id);
+        this._filmTracker.addTolist(name, id, poster, newList.id);
 
         if (this._listOpened) {
             this._render('updateListsPU');
@@ -165,15 +190,18 @@ class UI {
 
     _displayAddListPopUp(e) {
         
-        let name = 'none';
-        let id ='123456';
+        let name = '';
+        let id ='';
+        let poster = '';
 
         if (e.target.classList.contains('fas')) {
             name = e.target.parentElement.getAttribute('data-name');
-            id = e.target.parentElement.getAttribute('data-id');            
+            id = e.target.parentElement.getAttribute('data-id'); 
+            poster = e.target.parentElement.getAttribute('data-poster');           
         } else {
             name = e.target.getAttribute('data-name');
             id = e.target.getAttribute('data-id');
+            poster = e.target.getAttribute('data-poster');
         }
 
         // dinamically create popUp element
@@ -218,6 +246,7 @@ class UI {
 
         addToForm.setAttribute('data-name', name);
         addToForm.setAttribute('data-id', id);
+        addToForm.setAttribute('data-poster', poster);
 
         document.querySelector('.close-popup').addEventListener('click', this._closePopUp.bind(this));
         document.querySelector('#display-create-list').addEventListener('click', this._showCreateList.bind(this));
@@ -232,6 +261,7 @@ class UI {
         console.log(results);
 
         results.forEach(movie => {
+            console.log(movie.poster_path);
             const div = document.createElement('div');
             div.classList.add('card-item');
             div.innerHTML = `
@@ -239,7 +269,7 @@ class UI {
                 <h2 class="title">${movie.title}</h2>
                 <div class="bottom">
                     <p class="rating">rating: ${movie.vote_average}</p>
-                    <button data-name="${movie.title}" data-id="${movie.id}" class="display-list-form"><i class="fas fa-plus"></i></button>
+                    <button data-name="${movie.title}" data-id="${movie.id}" data-poster="${movie.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
                 </div>
             `;
             document.querySelector('#popular-movies .film-container').appendChild(div);
@@ -276,9 +306,9 @@ class UI {
             div.classList.add('swiper-slide');
             div.innerHTML = `
             <div class="card-item-2">
-                <img src="https://image.tmdb.org/t/p/w500/pD6sL4vntUOXHmuvJPPZAgvyfd9.jpg" alt="film-poster">
-                <h2 class="title">${movie.name}</h2>
+                <img src="https://image.tmdb.org/t/p/w500${movie.posterPath ? movie.posterPath : '/pD6sL4vntUOXHmuvJPPZAgvyfd9.jpg'}" alt="film-poster">
                 <div class="bottom">
+                    <h2 class="title">${movie.name}</h2>
                     <p class="rating">rating: 10</p>
                 </div>
             </div>    
@@ -316,38 +346,53 @@ class UI {
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
             }
-
-            // // Optional parameters
-            // direction: 'horizontal',
-            // loop: true,
-          
-            // // If we need pagination
-            // pagination: {
-            //   el: '.swiper-pagination',
-            // },
-          
-      
-          
-            // // And if we need scrollbar
-            // scrollbar: {
-            //   el: '.swiper-scrollbar',
-            // },
           });
     
 
+    }
+
+    async displayPopularShows() {
+
+        const {results} = await this._fetcher.getPopularShows();
+
+        console.log(results);
+
+        results.forEach(show => {
+            console.log(show.poster_path);
+            const div = document.createElement('div');
+            div.classList.add('card-item');
+            div.innerHTML = `
+                <img src="https://image.tmdb.org/t/p/w500${show.poster_path}" alt="film-poster">
+                <h2 class="title">${show.name}</h2>
+                <div class="bottom">
+                    <p class="rating">rating: ${show.vote_average}</p>
+                    <button data-name="${show.name}" data-id="${show.id}" data-poster="${show.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
+                </div>
+            `;
+            document.querySelector('#popular-shows .film-container').appendChild(div);
+        });
+
+        document.querySelector('.toggle-lists .fas').addEventListener('click', this._displayListsPopUp.bind(this));
+
+        const popupButtons =document.querySelectorAll('.display-list-form');
+
+        popupButtons.forEach(button => {
+            button.addEventListener('click', this._displayAddListPopUp.bind(this));
+        }) 
     }
 
 }
 
 // film class
 class Film {
-    constructor(name, id) {
+    constructor(name, id, posterPath) {
         this.name = name;
         this.id = id;
+        this.posterPath = posterPath;
     }
 
     toPlainObject() {
-        return {name: this.name, id: this.id};
+        return {name: this.name, id: this.id, posterPath: this.posterPath};
     }
 }
 
@@ -397,8 +442,8 @@ class FilmsTracker {
         return newList;
     }
 
-    addTolist (name, id, listID) {
-        const newFilm = new Film(name, id);
+    addTolist (name, id, posterPath, listID) {
+        const newFilm = new Film(name, id, posterPath);
         const list = this.lists.filter(list => list.id === listID)[0];
         list.addFilm(newFilm);
         this._setLocalStorage();
@@ -433,7 +478,7 @@ class FilmsTracker {
                 newList.id = list.id;
 
                 list.films.forEach(film => {
-                    const newFilm = new Film(film.name, film.id);
+                    const newFilm = new Film(film.name, film.id, film.posterPath);
                     newList.addFilm(newFilm);
                 });
 

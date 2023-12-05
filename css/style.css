@@ -9,10 +9,19 @@ body {
     margin: 0;
 }
 
+a {
+    color: #969696;
+}
+
 /* utilities */
 
 .on-view {
     display: block;
+}
+
+.isSelected {
+    color: #fff700;
+    font-weight: 900; 
 }
 
 /* search section */
@@ -64,6 +73,30 @@ outline: none;
     padding: 0 15px;
 }
 
+/* selection tv or movies */
+
+#selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 30px;
+    color: #969696;
+}
+
+#selection .container {
+    display: flex;
+    justify-content: space-between;
+    width: 150px;
+}
+
+#selection .container a {
+    text-decoration: none;
+    font-size: 1.8em;
+    font-weight: 500;
+}
+
+
 /* film container */
 .film-container {
     display: grid;
@@ -110,6 +143,11 @@ outline: none;
     display: flex;
     width: 100%;
     justify-content: space-between;
+
+}
+.card-item-2 .bottom {
+    width: 100%;
+    text-align: left;
 }
 
 .card-item .bottom button {
