@@ -11,6 +11,7 @@ class App {
     constructor(){
 
         this.ui = new UI();
+        this.searchUI = new SearchUI();
         
         // check for load and page changes
         window.addEventListener('load', this._route.bind(this));
@@ -34,6 +35,9 @@ class App {
                 break;
             case '/list.html':
                 this.ui.displayListFilms();
+                break;
+            case '/search.html':
+                this.searchUI.displaySearch();
                 break;
             default:
                 break;
@@ -254,37 +258,6 @@ class UI {
         document.querySelector('#create-list').addEventListener('submit', this._createList.bind(this));
     }
 
-    async displayPopularMovies() {
-
-        const {results} = await this._fetcher.getPopularMovies();
-
-        console.log(results);
-
-        results.forEach(movie => {
-            console.log(movie.poster_path);
-            const div = document.createElement('div');
-            div.classList.add('card-item');
-            div.innerHTML = `
-                <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="film-poster">
-                <h2 class="title">${movie.title}</h2>
-                <div class="bottom">
-                    <p class="rating">rating: ${movie.vote_average}</p>
-                    <button data-name="${movie.title}" data-id="${movie.id}" data-poster="${movie.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
-                </div>
-            `;
-            document.querySelector('#popular-movies .film-container').appendChild(div);
-        });
-
-        document.querySelector('.toggle-lists .fas').addEventListener('click', this._displayListsPopUp.bind(this));
-
-        const popupButtons =document.querySelectorAll('.display-list-form');
-
-        popupButtons.forEach(button => {
-            button.addEventListener('click', this._displayAddListPopUp.bind(this));
-        })
-
-    }
-
     displayListFilms() {
 
         const listId = window.location.search;
@@ -351,13 +324,53 @@ class UI {
 
     }
 
-    async displayPopularShows() {
+    async displayPopularMovies(optionalResults = null) {
+        
+        const {results} = await this._fetcher.getPopularMovies();
+        let searchResults = null;
+        if (optionalResults) {
+            searchResults = optionalResults;
+        } else {
+            searchResults = results;
+        }
+
+
+        searchResults.forEach(movie => {
+            console.log(movie.poster_path);
+            const div = document.createElement('div');
+            div.classList.add('card-item');
+            div.innerHTML = `
+                <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="film-poster">
+                <h2 class="title">${movie.title}</h2>
+                <div class="bottom">
+                    <p class="rating">rating: ${movie.vote_average}</p>
+                    <button data-name="${movie.title}" data-id="${movie.id}" data-poster="${movie.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
+                </div>
+                `;
+                document.querySelector('.film-container').appendChild(div);
+        });
+
+        document.querySelector('.toggle-lists .fas').addEventListener('click', this._displayListsPopUp.bind(this));
+
+        const popupButtons =document.querySelectorAll('.display-list-form');
+
+        popupButtons.forEach(button => {
+            button.addEventListener('click', this._displayAddListPopUp.bind(this));
+        })
+
+    }
+
+    async displayPopularShows(optionalResults = null) {
 
         const {results} = await this._fetcher.getPopularShows();
+        let searchResults = null;
+        if (optionalResults) {
+            searchResults = optionalResults;
+        } else {
+            searchResults = results;
+        }
 
-        console.log(results);
-
-        results.forEach(show => {
+        searchResults.forEach(show => {
             console.log(show.poster_path);
             const div = document.createElement('div');
             div.classList.add('card-item');
@@ -379,6 +392,60 @@ class UI {
         popupButtons.forEach(button => {
             button.addEventListener('click', this._displayAddListPopUp.bind(this));
         }) 
+    }
+
+}
+
+class SearchUI extends UI {
+    constructor() {
+        super();
+        this.searching = document.querySelector('#search-form');
+        this._hookSearching();
+    }
+
+    _hookSearching () {
+        if (this.searching) {
+            this.searching.addEventListener('submit', this.goToSearchPage.bind(this));
+        }
+    }
+
+    goToSearchPage(e) {
+
+        e.preventDefault();
+
+        const currentURL = window.location.href;
+
+        const urlParams = new URL(currentURL);
+
+        let type = urlParams.searchParams.get('type');
+
+        if (!type)  {
+            type = 'movies';
+        }
+
+        const inputString = document.querySelector('#search-form  input').value;
+
+        if(!inputString) return;
+
+        const inputParams = inputString.split(' ').join('+');
+
+        window.location.href =`/search.html?type=${type}&query=${inputParams}`;
+
+    }
+
+    async displaySearch() {
+
+        const currentURL = window.location.href;
+        const urlParams = new URL(currentURL);
+        const type = urlParams.searchParams.get('type');
+        const query = urlParams.searchParams.get('query').split(' ').join('+');
+        console.log(query);
+        const {results} = type === 'movies' ? await this._fetcher.searchMovies(query) : await this._fetcher.searchShows(query);
+
+        // using display popular movies to search - consider renaming the moethod
+
+        this.displayPopularMovies(results);
+    
     }
 
 }
