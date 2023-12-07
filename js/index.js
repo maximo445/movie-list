@@ -38,6 +38,7 @@ class App {
                 break;
             case '/search.html':
                 this.searchUI.displaySearch();
+                this.searchUI.displayBackNaviation();
                 break;
             default:
                 break;
@@ -62,12 +63,18 @@ class UI {
         document.querySelector('#create-list').style.display = 'block';
     }
 
-    isSelected(type) {
+    isSelected() {
+
+        const currentURL = window.location.href;
+
+        const urlParams = new URL(currentURL);
+
+        let type = urlParams.searchParams.get('type');
 
         const movies = document.querySelector('#selection .movies');
         const tv = document.querySelector('#selection .tv');
 
-        if (type === 'movie') {
+        if (type === 'movies' || !type) {
             movies.classList.add('isSelected');
             tv.classList.remove('isSelected');
         } else if (type === 'tv') {
@@ -375,14 +382,14 @@ class UI {
             const div = document.createElement('div');
             div.classList.add('card-item');
             div.innerHTML = `
-                <img src="https://image.tmdb.org/t/p/w500${show.poster_path}" alt="film-poster">
+                <img src=${show.poster_path ? `"https://image.tmdb.org/t/p/w500${show.poster_path}"` :`/img/no-image.jpg`} alt="film-poster">
                 <h2 class="title">${show.name}</h2>
                 <div class="bottom">
                     <p class="rating">rating: ${show.vote_average}</p>
                     <button data-name="${show.name}" data-id="${show.id}" data-poster="${show.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
                 </div>
             `;
-            document.querySelector('#popular-shows .film-container').appendChild(div);
+            document.querySelector('.film-container').appendChild(div);
         });
 
         document.querySelector('.toggle-lists .fas').addEventListener('click', this._displayListsPopUp.bind(this));
@@ -423,11 +430,13 @@ class SearchUI extends UI {
             type = 'movies';
         }
 
-        const inputString = document.querySelector('#search-form  input').value;
+        const inputString = document.querySelector('#search-form  input');
 
-        if(!inputString) return;
+        if(!inputString.value) return;
 
-        const inputParams = inputString.split(' ').join('+');
+        const inputParams = inputString.value.split(' ').join('+');
+
+        inputString.value = '';
 
         window.location.href =`/search.html?type=${type}&query=${inputParams}`;
 
@@ -443,9 +452,26 @@ class SearchUI extends UI {
         const {results} = type === 'movies' ? await this._fetcher.searchMovies(query) : await this._fetcher.searchShows(query);
 
         // using display popular movies to search - consider renaming the moethod
-
-        this.displayPopularMovies(results);
+        type === 'movies' ? this.displayPopularMovies(results) : this.displayPopularShows(results);        
     
+    }
+
+    displayBackNaviation() {
+
+        const currentURL = window.location.href;
+
+        const urlParams = new URL(currentURL);
+
+        let type = urlParams.searchParams.get('type');
+
+        const div = document.createElement('div');
+        if (type === 'movies') {
+            div.innerHTML = '<a class="isSelected" href="/index.html?type=movies" id="tv">back</a>';
+        } else {
+            div.innerHTML = '<a class="isSelected" href="/index.html?type=tv" id="tv">back</a>'
+        }
+
+        document.querySelector('#selection .container').appendChild(div);
     }
 
 }

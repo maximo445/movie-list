@@ -110,15 +110,21 @@ outline: none;
 /* card item */
 
 .card-item {
-    color: #fff;
+    color: #fff700;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;
+    transition: all 0.7s ease-in-out;
+}
+
+.card-item:hover {
+    transform: scale(1.05);
 }
 
 .card-item h2 {
+    color: #fff700;
     align-self: start;
 }
 
@@ -127,7 +133,7 @@ outline: none;
 }
 
 .card-item-2 {
-    color: #fff;
+    color: #fff700;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -153,7 +159,7 @@ outline: none;
 .card-item .bottom button {
     border: none;
     background: none;
-    color: #fff;
+    color: #e63131;
 }
 
 /* add to list popup */
