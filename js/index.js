@@ -62,12 +62,24 @@ class filmDetailsUI  {
 
     _showFilmDetails (e) {
         setTimeout(() => {
+
             const element = e.target;
-            const filmID = null;
+
+            let filmID = null;
+            let filmName = null;
+
             if (element.classList.contains('poster')) {
+
+                const temp = element.nextElementSibling.nextElementSibling;
+                filmName = temp.querySelector('.infoButton').getAttribute('data-name');
+                filmID = temp.querySelector('.infoButton').getAttribute('data-id');
 
             } else if (element.classList.contains('card-item')) {
 
+                const temp = element.querySelector('.bottom .infoButton');
+                filmName = temp.getAttribute('data-name');
+                filmID = temp.getAttribute('data-id');
+                
             } else if (element.classList.contains('title')) {
 
             } else if (element.classList.contains('bottom')) {
@@ -79,8 +91,17 @@ class filmDetailsUI  {
             } else if (element.classList.contains('fas')) {
 
             }
+
+            console.log({filmName,filmID})
             
         }, 1000)
+
+                // <img class="poster" src=${show.poster_path ? `"https://image.tmdb.org/t/p/w500${show.poster_path}"` :`/img/no-image.jpg`} alt="film-poster">
+                // <h2 class="title">${show.name}</h2>
+                // <div class="bottom">
+                //     <p class="rating">rating: ${show.vote_average}</p>
+                //     <button  data-name="${show.name}" data-id="${show.id}" data-poster="${show.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
+                // </div>
     }
 
 }
@@ -412,7 +433,7 @@ class UI extends filmDetailsUI {
                 <h2 class="title">${movie.title}</h2>
                 <div class="bottom">
                     <p class="rating">rating: ${movie.vote_average}</p>
-                    <button data-name="${movie.title}" data-id="${movie.id}" data-poster="${movie.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
+                    <button class="infoButton" data-name="${movie.title}" data-id="${movie.id}" data-poster="${movie.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
                 </div>
                 `;
                 document.querySelector('.film-container').appendChild(div);
@@ -449,7 +470,7 @@ class UI extends filmDetailsUI {
                 <h2 class="title">${show.name}</h2>
                 <div class="bottom">
                     <p class="rating">rating: ${show.vote_average}</p>
-                    <button data-name="${show.name}" data-id="${show.id}" data-poster="${show.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
+                    <button class="infoButton" data-name="${show.name}" data-id="${show.id}" data-poster="${show.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
                 </div>
             `;
             document.querySelector('.film-container').appendChild(div);
