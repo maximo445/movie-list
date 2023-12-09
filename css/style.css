@@ -177,17 +177,48 @@ outline: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(1px);
-    background: #33333360;
+    backdrop-filter: blur(0);
+    /* background: #33333360; */
     display: none;
+    margin-top: 30px;
+    opacity: 0;
+    transition: margin-top 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+
+.lift-up-addCreate {
+    opacity: 1 !important;
+    margin-top: 0 !important;
 }
 
 #add-to-list-popup .container {
     color: #fff;
-    background: #292929;
+    background: #20394b;
     padding: 15px;
+    border: solid 3px #fff;
     border-radius: 10px;
     min-width: 180px;
+    box-shadow: #1a1a1a 2px 2px 8px;
+}
+
+#add-to-list-popup .cs-buttom {
+    width: 100%;
+    margin: 10px 0;
+    color: #ffffff;
+    background: none;
+    border: solid 3px #f6f6f6;
+    padding: 5px 0;
+    border-radius: 5px;
+
+}
+#create-list .cs-input {
+  outline: none;
+  padding: 3px 5px;
+  margin: 5px 0;
+  border: none;
+  border-radius: 5px;
+}
+#create-list .cs-input:focus {
+  outline: none;
 }
 
 #add-to-list-popup .container .close-container {
@@ -197,9 +228,10 @@ outline: none;
 }
 
 #add-to-list-popup .container .close-container button {
-    color: #fff;
+    color: #ffffff;
     background: none;
     border: none;
+    font-weight: 900;
 }
 
 #create-list {
@@ -220,6 +252,7 @@ outline: none;
 .list-container {
     position: absolute;
     top: 0;
+    transform: translateY(30px);
     left: 20px;
     z-index: 8;
     width: 200px; 
@@ -230,6 +263,14 @@ outline: none;
     border-radius: 10px;
     overflow-y: scroll;
     overflow-x: hidden;
+    opacity: 0;
+    transition: opacity  0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.lift-up-newElement {
+    opacity: 1;
+    transform: translateY(0);
+    margin: 0;
 }
 
 .list-container::-webkit-scrollbar {
@@ -293,13 +334,26 @@ outline: none;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 120px;
+    margin-top: 30px;
+    height: 40px;
     color: #fff700;
 }
 
 #list-header .container h1 {
     font-size: 3em;
     margin: 0;
+}
+
+/* search section */
+
+#back {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+#back .container a {
+    text-decoration: none;
 }
 
 /* responsiviness */

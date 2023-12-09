@@ -27,7 +27,7 @@ class App {
         switch (pathName) {
             case '/index.html':
                 this.ui.displayPopularMovies();
-                this.ui.isSelected('movie');          
+                this.ui.isSelected('movie'); 
                 break;
             case '/shows.html':
                 this.ui.displayPopularShows();
@@ -35,6 +35,7 @@ class App {
                 break;
             case '/list.html':
                 this.ui.displayListFilms();
+                this.searchUI.displayBackNaviation();
                 break;
             case '/search.html':
                 this.searchUI.displaySearch();
@@ -47,20 +48,65 @@ class App {
     }
 }
 
-class UI {
+class filmDetailsUI  {
+    constructor() {
+        this._fetcher = new Fetcher();  
+    }
+
+    activateFilms () {
+        const films = document.querySelectorAll('.card-item');
+        films.forEach(film => {
+            film.addEventListener('mouseover', this._showFilmDetails.bind(this));
+        })
+    }
+
+    _showFilmDetails (e) {
+        setTimeout(() => {
+            const element = e.target;
+            const filmID = null;
+            if (element.classList.contains('poster')) {
+
+            } else if (element.classList.contains('card-item')) {
+
+            } else if (element.classList.contains('title')) {
+
+            } else if (element.classList.contains('bottom')) {
+
+            } else if (element.classList.contains('rating')) {
+
+            } else if (element.classList.contains('display-list-form')) {
+
+            } else if (element.classList.contains('fas')) {
+
+            }
+            
+        }, 1000)
+    }
+
+}
+
+class UI extends filmDetailsUI {
 
     constructor() {
+        super();
         this._fetcher = new Fetcher();
         this._filmTracker = new FilmsTracker();
         this._listOpened = false;
     }
 
     _closePopUp() {
-        document.querySelector('#add-to-list-popup').style.display = 'none';
+        const popUp = document.querySelector('#add-to-list-popup');
+        
+        popUp.classList.remove('lift-up-addCreate');
+
+        setTimeout(() => {
+            popUp.style.display = 'none';
+        }, 510)
     }
 
     _showCreateList() {        
         document.querySelector('#create-list').style.display = 'block';
+        document.querySelector('#display-create-list').style.display = 'none';
     }
 
     isSelected() {
@@ -186,13 +232,24 @@ class UI {
             `;
             document.querySelector('.toggle-lists').appendChild(div);
 
+            const newElement = document.querySelector('.list-container');
+            
+            newElement.offsetWidth;
+
+            newElement.classList.add('lift-up-newElement');
+
             this._listOpened = true;
 
         } else {
 
-            console.log('are we here?');
+            const listPopUp =  document.querySelector('.toggle-lists .list-container');
 
-            document.querySelector('.toggle-lists .list-container').remove();
+            listPopUp.style.transform = 'translateY(30px)';
+            listPopUp.style.opacity = '0';
+            
+            setTimeout(() => {
+                listPopUp.remove();
+            }, 710);
 
             this._listOpened = false;
 
@@ -229,7 +286,7 @@ class UI {
                 <button class="close-popup">X</button>
             </div>
             <form id="add-to">
-                <input type="submit" value="Add">
+                <input class="cs-buttom" type="submit" value="Add">
                 <br>
                 ${this._filmTracker.lists.map(list => {
                     return `
@@ -239,19 +296,22 @@ class UI {
                     `;
                 }).join('<br>')}
             </form>
-            <button id="display-create-list"> + Create List</button>
+            <button class="cs-buttom" id="display-create-list"> + Create List</button>
             <form id="create-list">
                 <label for="field1">Name</label>
                 <br>
-                <input type="text" id="list-name" name="list-name" placeholder="Enter playlist name...">
+                <input class="cs-input" class="cs-buttom" type="text" id="list-name" name="list-name">
                 <br>
-                <input type="submit" value="Create">
+                <input class="cs-buttom" type="submit" value="Create">
             </form>                                              
         `;
 
-        
         popUp.appendChild(div);
         popUp.style.display = 'flex';
+
+        popUp.offsetWidth;
+
+        popUp.classList.add('lift-up-addCreate');
 
         const addToForm = document.querySelector('#add-to');
 
@@ -263,6 +323,7 @@ class UI {
         document.querySelector('#display-create-list').addEventListener('click', this._showCreateList.bind(this));
         document.querySelector('#add-to').addEventListener('submit', this._addFilm.bind(this));
         document.querySelector('#create-list').addEventListener('submit', this._createList.bind(this));
+
     }
 
     displayListFilms() {
@@ -341,13 +402,13 @@ class UI {
             searchResults = results;
         }
 
+        console.log(searchResults);
 
         searchResults.forEach(movie => {
-            console.log(movie.poster_path);
             const div = document.createElement('div');
             div.classList.add('card-item');
             div.innerHTML = `
-                <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="film-poster">
+                <img class="poster" src=${movie.poster_path ? `"https://image.tmdb.org/t/p/w500${movie.poster_path}"` :`/img/no-image.jpg`} alt="film-poster">
                 <h2 class="title">${movie.title}</h2>
                 <div class="bottom">
                     <p class="rating">rating: ${movie.vote_average}</p>
@@ -365,11 +426,14 @@ class UI {
             button.addEventListener('click', this._displayAddListPopUp.bind(this));
         })
 
+        this.activateFilms();
+
     }
 
     async displayPopularShows(optionalResults = null) {
 
         const {results} = await this._fetcher.getPopularShows();
+
         let searchResults = null;
         if (optionalResults) {
             searchResults = optionalResults;
@@ -378,11 +442,10 @@ class UI {
         }
 
         searchResults.forEach(show => {
-            console.log(show.poster_path);
             const div = document.createElement('div');
             div.classList.add('card-item');
             div.innerHTML = `
-                <img src=${show.poster_path ? `"https://image.tmdb.org/t/p/w500${show.poster_path}"` :`/img/no-image.jpg`} alt="film-poster">
+                <img class="poster" src=${show.poster_path ? `"https://image.tmdb.org/t/p/w500${show.poster_path}"` :`/img/no-image.jpg`} alt="film-poster">
                 <h2 class="title">${show.name}</h2>
                 <div class="bottom">
                     <p class="rating">rating: ${show.vote_average}</p>
@@ -399,9 +462,12 @@ class UI {
         popupButtons.forEach(button => {
             button.addEventListener('click', this._displayAddListPopUp.bind(this));
         }) 
+
+        this.activateFilms();
     }
 
 }
+
 
 class SearchUI extends UI {
     constructor() {
@@ -465,13 +531,13 @@ class SearchUI extends UI {
         let type = urlParams.searchParams.get('type');
 
         const div = document.createElement('div');
-        if (type === 'movies') {
-            div.innerHTML = '<a class="isSelected" href="/index.html?type=movies" id="tv">back</a>';
+        if (type === 'movies' || !type) {
+            div.innerHTML = '<a class="isSelected" href="/index.html?type=movies" id="tv">&lt; back</a>';
         } else {
-            div.innerHTML = '<a class="isSelected" href="/index.html?type=tv" id="tv">back</a>'
+            div.innerHTML = '<a class="isSelected" href="/index.html?type=tv" id="tv">&lt; back</a>'
         }
 
-        document.querySelector('#selection .container').appendChild(div);
+        document.querySelector('#back .container').appendChild(div);
     }
 
 }
