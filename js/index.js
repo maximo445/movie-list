@@ -1,3 +1,5 @@
+// line 65
+
 class IdGerator {
     _generateUniqueId() {
         const timestamp = new Date().getTime();
@@ -51,57 +53,73 @@ class App {
 class filmDetailsUI  {
     constructor() {
         this._fetcher = new Fetcher();  
+        this.hoverTime = null;
     }
 
     activateFilms () {
         const films = document.querySelectorAll('.card-item');
         films.forEach(film => {
-            film.addEventListener('mouseover', this._showFilmDetails.bind(this));
+            film.addEventListener('mouseenter', this._startTime.bind(this));
+            film.addEventListener('mouseleave', this._clearTimeOut.bind(this));
         })
     }
 
-    _showFilmDetails (e) {
-        setTimeout(() => {
+    async _getFilmData(filmId) {        
+        
 
-            const element = e.target;
+    }
 
-            let filmID = null;
-            let filmName = null;
+    _getFilm(e) {
+        
+        const element = e.target;
 
-            if (element.classList.contains('poster')) {
+        const film = {};
 
-                const temp = element.nextElementSibling.nextElementSibling;
-                filmName = temp.querySelector('.infoButton').getAttribute('data-name');
-                filmID = temp.querySelector('.infoButton').getAttribute('data-id');
+        if (element.classList.contains('card-item')) {
+            const temp = element.querySelector('.bottom .infoButton');
+            film.backdrop_path = temp.getAttribute('data-backdrop_path');
+            film.overview = temp.getAttribute('data-overview');
+            film.name = temp.getAttribute('data-name'); 
+            this._showFilmDetails(film);           
+        } 
+        
+    }
 
-            } else if (element.classList.contains('card-item')) {
+    _showFilmDetails(film) {
+        const div = document.createElement('div');
+        div.classList.add('container');
+        div.innerHTML = `
+        <div class="exit">
+            <button class="exit-btn">X</button>
+        </div>
+        <div class="overview">
+            <p class="title">${film.name}</p>
+            <p class="body">${film.overview}</p>
+        </div>
+            `;
+        document.querySelector('#film-details').appendChild(div);
+        document.querySelector('#film-details .container').style.background = `url('https://image.tmdb.org/t/p/w500${film.backdrop_path}') no-repeat center center/cover`
+        document.querySelector('#film-details').style.display = 'flex';
+        document.addEventListener('click', this._closeSelf.bind(this));
+    }
 
-                const temp = element.querySelector('.bottom .infoButton');
-                filmName = temp.getAttribute('data-name');
-                filmID = temp.getAttribute('data-id');
-                
-            } else if (element.classList.contains('title')) {
+    _closeSelf(e) {
+        const container = e.target.parentElement.parentElement;
+        document.querySelector('#film-details').style.display = 'none'; 
+        container.remove();
+    }
+ 
+    _startTime(e) {
 
-            } else if (element.classList.contains('bottom')) {
+        this.hoverTime = setTimeout(()=>{
+            this._getFilm(e);
+        }, 1300);
+        
 
-            } else if (element.classList.contains('rating')) {
+    }
 
-            } else if (element.classList.contains('display-list-form')) {
-
-            } else if (element.classList.contains('fas')) {
-
-            }
-
-            console.log({filmName,filmID})
-            
-        }, 1000)
-
-                // <img class="poster" src=${show.poster_path ? `"https://image.tmdb.org/t/p/w500${show.poster_path}"` :`/img/no-image.jpg`} alt="film-poster">
-                // <h2 class="title">${show.name}</h2>
-                // <div class="bottom">
-                //     <p class="rating">rating: ${show.vote_average}</p>
-                //     <button  data-name="${show.name}" data-id="${show.id}" data-poster="${show.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
-                // </div>
+    _clearTimeOut() {
+        clearInterval(this.hoverTime);
     }
 
 }
@@ -110,7 +128,7 @@ class UI extends filmDetailsUI {
 
     constructor() {
         super();
-        this._fetcher = new Fetcher();
+        // this._fetcher = new Fetcher();
         this._filmTracker = new FilmsTracker();
         this._listOpened = false;
     }
@@ -171,6 +189,8 @@ class UI extends filmDetailsUI {
 
         const checkedLists = e.target.querySelectorAll('input[type="checkbox"]:checked');
 
+        if (checkedLists.length === 0) return;
+
         checkedLists.forEach(selection => {
             this._filmTracker.addTolist(name, id, poster, selection.value);
         });
@@ -226,8 +246,6 @@ class UI extends filmDetailsUI {
     }
 
     _displayListsPopUp (event, dontClose = false) {
-
-        console.log({listOpened: this._listOpened, dontClose});
 
         const numberOfList = this._filmTracker.lists.length;
 
@@ -433,7 +451,7 @@ class UI extends filmDetailsUI {
                 <h2 class="title">${movie.title}</h2>
                 <div class="bottom">
                     <p class="rating">rating: ${movie.vote_average}</p>
-                    <button class="infoButton" data-name="${movie.title}" data-id="${movie.id}" data-poster="${movie.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
+                    <button class="infoButton display-list-form" data-name="${movie.title}" data-id="${movie.id}" data-poster="${movie.poster_path}"  data-overview="${movie.overview}" data-backdrop_path="${movie.backdrop_path}"><i class="fas fa-plus"></i></button>
                 </div>
                 `;
                 document.querySelector('.film-container').appendChild(div);
@@ -441,7 +459,7 @@ class UI extends filmDetailsUI {
 
         document.querySelector('.toggle-lists .fas').addEventListener('click', this._displayListsPopUp.bind(this));
 
-        const popupButtons =document.querySelectorAll('.display-list-form');
+        const popupButtons = document.querySelectorAll('.display-list-form');
 
         popupButtons.forEach(button => {
             button.addEventListener('click', this._displayAddListPopUp.bind(this));
@@ -462,6 +480,8 @@ class UI extends filmDetailsUI {
             searchResults = results;
         }
 
+        console.log(searchResults);
+
         searchResults.forEach(show => {
             const div = document.createElement('div');
             div.classList.add('card-item');
@@ -470,7 +490,7 @@ class UI extends filmDetailsUI {
                 <h2 class="title">${show.name}</h2>
                 <div class="bottom">
                     <p class="rating">rating: ${show.vote_average}</p>
-                    <button class="infoButton" data-name="${show.name}" data-id="${show.id}" data-poster="${show.poster_path}" class="display-list-form"><i class="fas fa-plus"></i></button>
+                    <button class="infoButton display-list-form" data-name="${show.name}" data-id="${show.id}" data-poster="${show.poster_path}" data-overview="${show.overview}" data-backdrop_path="${show.backdrop_path}"><i class="fas fa-plus"></i></button>
                 </div>
             `;
             document.querySelector('.film-container').appendChild(div);
@@ -682,7 +702,8 @@ class Fetcher {
             popularMovies: `https://api.themoviedb.org/3/movie/popular?api_key=${this._key}`,
             popularTV: `https://api.themoviedb.org/3/tv/popular?api_key=${this._key}`,
             movies: `https://api.themoviedb.org/3/search/movie?query={keywords}&include_adult=false&api_key=${this._key}`,
-            shows: `https://api.themoviedb.org/3/search/tv?query={keywords}&include_adult=false&api_key=${this._key}`
+            shows: `https://api.themoviedb.org/3/search/tv?query={keywords}&include_adult=false&api_key=${this._key}`,
+            film: `https://api.themoviedb.org/3/find/{id}?api_key=${this._key}`
         }
 
     }
@@ -703,6 +724,13 @@ class Fetcher {
         return movies;
 
     }
+
+    async findFilm(id) {
+        const url = this._urls.film.replace('{id}', id);
+        const film = await this._fetcher(url);
+        return url;
+    }
+
     async searchShows(query) {
         const myURl = this._setUrl('searchShows', query);
         const shows = await this._fetcher(myURl);
