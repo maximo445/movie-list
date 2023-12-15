@@ -58,9 +58,12 @@ class filmDetailsUI  {
 
     activateFilms () {
         const films = document.querySelectorAll('.card-item');
+        // films.forEach(film => {
+        //     film.addEventListener('mouseenter', this._startTime.bind(this));
+        //     film.addEventListener('mouseleave', this._clearTimeOut.bind(this));
+        // })
         films.forEach(film => {
-            film.addEventListener('mouseenter', this._startTime.bind(this));
-            film.addEventListener('mouseleave', this._clearTimeOut.bind(this));
+            film.firstElementChild.addEventListener('click', this._getFilm.bind(this));
         })
     }
 
@@ -71,7 +74,7 @@ class filmDetailsUI  {
 
     _getFilm(e) {
         
-        const element = e.target;
+        const element = e.target.parentElement;
 
         const film = {};
 
@@ -86,7 +89,10 @@ class filmDetailsUI  {
     }
 
     _showFilmDetails(film) {
-        document.querySelector('#film-details').innerHTML = '';
+
+        const filmDetails = document.querySelector('#film-details');
+        filmDetails.innerHTML = '';
+
         const div = document.createElement('div');
         div.classList.add('container');
         div.innerHTML = `
@@ -95,16 +101,25 @@ class filmDetailsUI  {
                     <button class="exit-btn"><span class="text">X</span></button>
                 </div>
                 <div class="overview">
-                    <p class="title">${film.name}</p>
+                    <h3 class="title">${film.name}</h3>
                     <p class="body">${film.overview}</p>
                 </div>
             </div>
         <div class="image-wrapper"></div>
-            `;
-        document.querySelector('#film-details').appendChild(div);
+            `;      
+        
+        filmDetails.appendChild(div);
+        filmDetails.style.display = 'flex';
+
         document.querySelector('#film-details .image-wrapper').style.background = `url('https://image.tmdb.org/t/p/w500${film.backdrop_path}') no-repeat center center/cover`
-        document.querySelector('#film-details').style.display = 'flex';
         document.querySelector('.exit-btn').addEventListener('click', this._closeSelf.bind(this));
+
+        const container = document.querySelector('#film-details .container');
+        
+        container.offsetWidth;
+        container.classList.add('present-overview');
+        
+        console.log(container);
     }
 
     _closeSelf(e) {
@@ -113,18 +128,18 @@ class filmDetailsUI  {
         container.remove();
     }
  
-    _startTime(e) {
+    // _startTime(e) {
 
-        this.hoverTime = setTimeout(()=>{
-            this._getFilm(e);
-        }, 2000);
+    //     this.hoverTime = setTimeout(()=>{
+    //         this._getFilm(e);
+    //     }, 2000);
         
 
-    }
+    // }
 
-    _clearTimeOut() {
-        clearInterval(this.hoverTime);
-    }
+    // _clearTimeOut() {
+    //     clearInterval(this.hoverTime);
+    // }
 
 }
 
@@ -563,8 +578,7 @@ class SearchUI extends UI {
         const {results} = type === 'movies' ? await this._fetcher.searchMovies(query) : await this._fetcher.searchShows(query);
 
         // using display popular movies to search - consider renaming the moethod
-        type === 'movies' ? this.displayPopularMovies(results) : this.displayPopularShows(results);        
-    
+        type === 'movies' ? this.displayPopularMovies(results) : this.displayPopularShows(results);     
     }
 
     displayBackNaviation() {
