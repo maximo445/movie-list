@@ -86,25 +86,29 @@ class filmDetailsUI  {
     }
 
     _showFilmDetails(film) {
+        document.querySelector('#film-details').innerHTML = '';
         const div = document.createElement('div');
         div.classList.add('container');
         div.innerHTML = `
-        <div class="exit">
-            <button class="exit-btn">X</button>
-        </div>
-        <div class="overview">
-            <p class="title">${film.name}</p>
-            <p class="body">${film.overview}</p>
-        </div>
+        <div class="inner-container">
+                <div class="exit">
+                    <button class="exit-btn"><span class="text">X</span></button>
+                </div>
+                <div class="overview">
+                    <p class="title">${film.name}</p>
+                    <p class="body">${film.overview}</p>
+                </div>
+            </div>
+        <div class="image-wrapper"></div>
             `;
         document.querySelector('#film-details').appendChild(div);
-        document.querySelector('#film-details .container').style.background = `url('https://image.tmdb.org/t/p/w500${film.backdrop_path}') no-repeat center center/cover`
+        document.querySelector('#film-details .image-wrapper').style.background = `url('https://image.tmdb.org/t/p/w500${film.backdrop_path}') no-repeat center center/cover`
         document.querySelector('#film-details').style.display = 'flex';
-        document.addEventListener('click', this._closeSelf.bind(this));
+        document.querySelector('.exit-btn').addEventListener('click', this._closeSelf.bind(this));
     }
 
     _closeSelf(e) {
-        const container = e.target.parentElement.parentElement;
+        const container = e.target;
         document.querySelector('#film-details').style.display = 'none'; 
         container.remove();
     }
@@ -113,7 +117,7 @@ class filmDetailsUI  {
 
         this.hoverTime = setTimeout(()=>{
             this._getFilm(e);
-        }, 1300);
+        }, 2000);
         
 
     }
